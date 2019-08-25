@@ -24,13 +24,20 @@
         <tr>
             <form method="post" action="{{ url_for('todos_POST') }}">
                 <td colspan="3">
-                    <input type="textbox" name="description" class="small-6 small-center" placeholder="Description...">
+                    <!-- TASK-1 : Field 'description' made mandatory on HTML Front End -->
+                    <input type="textbox" name="description" class="small-6 small-center" placeholder="Description..." required>
                 </td>
                 <td>
                     <button type="submit" class="btn btn-sm btn-primary">Add</button>
                 </td>
             </form>
         </tr>
+
     </table>
+
+    <!-- TASK-1 : Message added if a user tries to enter a to-do without description -->
+    {% if descBlankMsg %}
+    <p style = "color:red;">Description can not be left blank*</p>
+    {% endif %}
 </div>
 {% endblock %}

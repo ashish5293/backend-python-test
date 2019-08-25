@@ -57,7 +57,11 @@ def todos():
         return redirect('/login')
     cur = g.db.execute("SELECT * FROM todos")
     todos = cur.fetchall()
-    return render_template('todos.html', todos=todos)
+
+    # TASK-1 : render_template function provided an additional parameter for a
+    # variable "descBlankMsg" added in todos.html
+    # "descBlankMsg" is False when blank description message needs to be hidden on todos.html
+    return render_template('todos.html', todos=todos, descBlankMsg=False)
 
 
 @app.route('/todo', methods=['POST'])
@@ -65,10 +69,19 @@ def todos():
 def todos_POST():
     if not session.get('logged_in'):
         return redirect('/login')
-    g.db.execute(
-        "INSERT INTO todos (user_id, description) VALUES ('%s', '%s')"
-        % (session['user']['id'], request.form.get('description', ''))
-    )
+
+    # TASK-1 : Server-side validation of the user to add description
+    if request.form.get('description', '') != '':
+        g.db.execute(
+            "INSERT INTO todos (user_id, description) VALUES ('%s', '%s')"
+            % (session['user']['id'], request.form.get('description', ''))
+        )
+    else:
+        cur = g.db.execute("SELECT * FROM todos")
+        todos = cur.fetchall()
+        # "descBlankMsg" is True when blank description message needs to be displayed on todos.html
+        return render_template('todos.html', todos=todos, descBlankMsg=True)
+
     g.db.commit()
     return redirect('/todo')
 
