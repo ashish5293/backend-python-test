@@ -14,6 +14,22 @@
                        {{ todo.description }}
                     </a>
                 </td>
+                {% if todo.complete == 0 %}
+                <td>
+                    <form method="get" action="{{ url_for('todo_mark_complete', id=todo.id) }}">
+                        <!-- TASK-2 : A clickable minus button is shown if the task is INCOMPLETE -->
+                        <button type="submit" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-minus glyphicon-white"></span></button>
+                    </form>
+                </td>
+                {% elif todo.complete != 0 %}
+                <td>
+                    <form method="post" action="{{ url_for('todo_mark_incomplete', id=todo.id) }}">
+                        <!-- TASK-2 : A clickable check-mark button is shown if the task is COMPLETE -->
+                        <button type="submit" class="btn btn-xs btn-primary active"><span class="glyphicon glyphicon-ok glyphicon-white"></span></button>
+                    </form>
+                </td>
+                {% endif %}
+
                 <td>
                     <form method="post" action="{{ url_for('todo_delete', id=todo.id) }}">
                         <button type="submit" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove glyphicon-white"></span></button>
@@ -27,6 +43,7 @@
                     <!-- TASK-1 : Field 'description' made mandatory on HTML Front End -->
                     <input type="textbox" name="description" class="small-6 small-center" placeholder="Description..." required>
                 </td>
+
                 <td>
                     <button type="submit" class="btn btn-sm btn-primary">Add</button>
                 </td>

@@ -73,7 +73,7 @@ def todos_POST():
     # TASK-1 : Server-side validation of the user to add description
     if request.form.get('description', '') != '':
         g.db.execute(
-            "INSERT INTO todos (user_id, description) VALUES ('%s', '%s')"
+            "INSERT INTO todos (user_id, description, complete) VALUES ('%s', '%s',0)"
             % (session['user']['id'], request.form.get('description', ''))
         )
     else:
@@ -92,4 +92,31 @@ def todo_delete(id):
         return redirect('/login')
     g.db.execute("DELETE FROM todos WHERE id ='%s'" % id)
     g.db.commit()
+    print "cross pressed %s" %id
     return redirect('/todo')
+
+
+# TASK-2 : function todo_mark_complete runs when user marks a to-do as COMPLETE
+@app.route('/todos/<id>', methods=['GET'])
+def todo_mark_complete(id):
+    if not session.get('logged_in'):
+        return redirect('/login')
+    g.db.execute("UPDATE todos SET complete = 1 WHERE id ='%s'" % id)
+    g.db.commit()
+    print "COMPLETE pressed"
+    return redirect('/todo')
+    # return render_template('todos.html', todos=todos, descBlankMsg=False)
+
+
+# TASK-2 : function todo_mark_complete runs when user marks a to-do as INCOMPLETE
+@app.route('/todos/<id>', methods=['POST'])
+def todo_mark_incomplete(id):
+    if not session.get('logged_in'):
+        return redirect('/login')
+    g.db.execute("UPDATE todos SET complete = 0 WHERE id ='%s'" % id)
+    g.db.commit()
+    print "incomplete unpressed"
+    return redirect('/todo')
+    # return render_template('todos.html', todos=todos, descBlankMsg=False)
+
+
