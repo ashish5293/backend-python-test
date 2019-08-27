@@ -6,6 +6,12 @@ from flask import (
     request,
     session
     )
+from flask_sqlalchemy import SQLAlchemy
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tmp/alayatodo.db'
+db = SQLAlchemy(app)
+
+from models_orm import Users, Todos
 
 
 @app.route('/')
@@ -25,11 +31,17 @@ def login_POST():
     username = request.form.get('username')
     password = request.form.get('password')
 
-    sql = "SELECT * FROM users WHERE username = '%s' AND password = '%s'";
-    cur = g.db.execute(sql % (username, password))
-    user = cur.fetchone()
+    # sql = "SELECT * FROM users WHERE username = '%s' AND password = '%s'";
+    # cur = g.db.execute(sql % (username, password))
+    # user = cur.fetchone()
+
+    # TASK-6 : SQL code replaced with SQLAlchemy code
+    user = Users.query.filter_by(username=username, password=password).first()
+
     if user:
-        session['user'] = dict(user)
+        session['user'] = {'username': user.username,
+                           'password': user.password,
+                           'id': user.id}
         session['logged_in'] = True
         return redirect('/todo')
 
@@ -45,8 +57,11 @@ def logout():
 
 @app.route('/todo/<id>', methods=['GET'])
 def todo(id):
-    cur = g.db.execute("SELECT * FROM todos WHERE id ='%s'" % id)
-    todo = cur.fetchone()
+    # cur = g.db.execute("SELECT * FROM todos WHERE id ='%s'" % id)
+    # todo = cur.fetchone()
+
+    # TASK-6 : SQL code replaced with SQLAlchemy code
+    todo = Todos.query.filter_by(id=id).first()
     return render_template('todo.html', todo=todo)
 
 
@@ -55,8 +70,12 @@ def todo(id):
 def todos():
     if not session.get('logged_in'):
         return redirect('/login')
-    cur = g.db.execute("SELECT * FROM todos")
-    todos = cur.fetchall()
+    # cur = g.db.execute("SELECT * FROM todos")
+    # todos = cur.fetchall()
+
+    # TASK-6 : SQL code replaced with SQLAlchemy code
+    todos = Todos.query.all()
+
     # TASK-1 : render_template function provided an additional parameter for a
     # variable "descBlankMsg" added in todos.html
     # "descBlankMsg" is False when blank description message needs to be hidden on todos.html
@@ -71,8 +90,12 @@ def todos():
 def todos_confirm(confirmation):
     if not session.get('logged_in'):
         return redirect('/login')
-    cur = g.db.execute("SELECT * FROM todos")
-    todos = cur.fetchall()
+    # cur = g.db.execute("SELECT * FROM todos")
+    # todos = cur.fetchall()
+
+    # TASK-6 : SQL code replaced with SQLAlchemy code
+    todos = Todos.query.all()
+
     # TASK-4 : confirmMsg is
     # 0 when a to-do is marked incomplete
     # 1 when a to-do is marked COMPLETE
@@ -89,17 +112,29 @@ def todos_POST():
 
     # TASK-1 : Server-side validation of the user to add description
     if request.form.get('description', '') != '':
+        '''
         g.db.execute(
             "INSERT INTO todos (user_id, description, complete) VALUES ('%s', '%s',0)"
             % (session['user']['id'], request.form.get('description', ''))
         )
+        '''
+
+        # TASK-6 : SQL code replaced with SQLAlchemy code
+        new_todo = Todos(user_id=session['user']['id'], description=request.form.get('description', ''),complete=0)
+        db.session.add(new_todo)
     else:
-        cur = g.db.execute("SELECT * FROM todos")
-        todos = cur.fetchall()
+        # cur = g.db.execute("SELECT * FROM todos")
+        # todos = cur.fetchall()
+
+        # TASK-6 : SQL code replaced with SQLAlchemy code
+        todos = Todos.query.all()
+
         # "descBlankMsg" is True when blank description message needs to be displayed on todos.html
         return render_template('todos.html', todos=todos, descBlankMsg=True)
 
-    g.db.commit()
+    # g.db.commit()
+    db.session.commit()
+
     # TASK-4 : modification done to redirect function parameter
     return redirect('/todos/3/c')
 
@@ -108,8 +143,14 @@ def todos_POST():
 def todo_delete(id):
     if not session.get('logged_in'):
         return redirect('/login')
-    g.db.execute("DELETE FROM todos WHERE id ='%s'" % id)
-    g.db.commit()
+    # g.db.execute("DELETE FROM todos WHERE id ='%s'" % id)
+    # g.db.commit()
+
+    # TASK-6 : SQL code replaced with SQLAlchemy code
+    delete_todo = db.session.query(Todos).filter_by(id=id).first()
+    db.session.delete(delete_todo)
+    db.session.commit()
+
     # TASK-4 : modification done to redirect function parameter
     return redirect('/todos/2/c')
 
@@ -119,19 +160,31 @@ def todo_delete(id):
 def todo_mark_complete(id):
     if not session.get('logged_in'):
         return redirect('/login')
-    g.db.execute("UPDATE todos SET complete = 1 WHERE id ='%s'" % id)
-    g.db.commit()
+    # g.db.execute("UPDATE todos SET complete = 1 WHERE id ='%s'" % id)
+    # g.db.commit()
+
+    # TASK-6 : SQL code replaced with SQLAlchemy code
+    update_todo = db.session.query(Todos).filter_by(id=id).first()
+    update_todo.complete = 1
+    db.session.commit()
+
     # TASK-4 : modification done to redirect function parameter
     return redirect('/todos/0/c')
 
 
-# TASK-2 : function todo_mark_complete runs when user marks a to-do as INCOMPLETE
+# TASK-2 : function todo_mark_incomplete runs when user marks a to-do as INCOMPLETE
 @app.route('/todos/<id>', methods=['POST'])
 def todo_mark_incomplete(id):
     if not session.get('logged_in'):
         return redirect('/login')
-    g.db.execute("UPDATE todos SET complete = 0 WHERE id ='%s'" % id)
-    g.db.commit()
+    # g.db.execute("UPDATE todos SET complete = 0 WHERE id ='%s'" % id)
+    # g.db.commit()
+
+    # TASK-6 : SQL code replaced with SQLAlchemy code
+    update_todo = db.session.query(Todos).filter_by(id=id).first()
+    update_todo.complete = 0
+    db.session.commit()
+
     # TASK-4 : modification done to redirect function parameter
     return redirect('/todos/1/c')
 
