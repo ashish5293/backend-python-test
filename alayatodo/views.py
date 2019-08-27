@@ -74,7 +74,11 @@ def todos():
     # todos = cur.fetchall()
 
     # TASK-6 : SQL code replaced with SQLAlchemy code
-    todos = Todos.query.all()
+    # todos = Todos.query.all()
+
+    # TASK-5 : Pagination added
+    page = request.args.get('page', 1, type=int)
+    todos = Todos.query.paginate(page=page, per_page=7)
 
     # TASK-1 : render_template function provided an additional parameter for a
     # variable "descBlankMsg" added in todos.html
@@ -94,7 +98,11 @@ def todos_confirm(confirmation):
     # todos = cur.fetchall()
 
     # TASK-6 : SQL code replaced with SQLAlchemy code
-    todos = Todos.query.all()
+    # todos = Todos.query.all()
+
+    # TASK-5 : Pagination added
+    page = request.args.get('page', 1, type=int)
+    todos = Todos.query.paginate(page=page, per_page=7)
 
     # TASK-4 : confirmMsg is
     # 0 when a to-do is marked incomplete
@@ -127,7 +135,11 @@ def todos_POST():
         # todos = cur.fetchall()
 
         # TASK-6 : SQL code replaced with SQLAlchemy code
-        todos = Todos.query.all()
+        # todos = Todos.query.all()
+
+        # TASK-5 : Pagination added
+        page = request.args.get('page', 1, type=int)
+        todos = Todos.query.paginate(page=page, per_page=7)
 
         # "descBlankMsg" is True when blank description message needs to be displayed on todos.html
         return render_template('todos.html', todos=todos, descBlankMsg=True)
@@ -189,3 +201,13 @@ def todo_mark_incomplete(id):
     return redirect('/todos/1/c')
 
 
+@app.route('/todo/page/', methods=['POST'])
+def todos_page_POST():
+    if not session.get('logged_in'):
+        return redirect('/login')
+    # TASK-5 : Pagination added
+    page = request.args.get('page', 1, type=int)
+    todos = Todos.query.paginate(page=page, per_page=7)
+
+    # "descBlankMsg" is True when blank description message needs to be displayed on todos.html
+    return render_template('todos.html', todos=todos)

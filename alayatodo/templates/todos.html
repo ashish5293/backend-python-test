@@ -5,7 +5,9 @@
     <h1>Todo List:</h1>
     <table class="table table-striped" style="text-align:center;">
         <th>#</th><th>User</th><th>Description</th><th>Complete</th><th>Remove</th>
-        {% for todo in todos %}
+
+        <!-- TASK-5 -->
+        {% for todo in todos.items %}
             <tr>
                 <td>{{ todo.id }}</td>
                 <td>{{ todo.user_id }}</td>
@@ -37,6 +39,7 @@
                 </td>
             </tr>
         {% endfor %}
+
         <tr>
             <form method="post" action="{{ url_for('todos_POST') }}">
                 <td colspan="3">
@@ -49,7 +52,24 @@
                 </td>
             </form>
         </tr>
+    </table>
 
+    <!-- TASK-5 : Pagination added -->
+    <table>
+        <tr>
+            <td class="text-info" style="padding-right: 25px;">Pages</td>
+            {% for page_num in todos.iter_pages() %}
+                <td>
+                    {% if page_num %}
+                        <form method="post" action="{{ url_for('todos_page_POST',page=page_num) }}">
+                            <button type="submit" class="btn btn-sm btn-info">{{ page_num }}</button>
+                        </form>
+                    {% else %}
+                    ...
+                    {% endif %}
+                </td>
+            {% endfor %}
+        </tr>
     </table>
 
     <!-- TASK-1 : Message added if a user tries to enter a to-do without description -->
