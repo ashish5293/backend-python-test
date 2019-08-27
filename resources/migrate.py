@@ -7,12 +7,14 @@
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from flask_sqlalchemy import SQLAlchemy
-import sys
-sys.path.insert(0, 'D:/PycharmProjects/backend-python-test/')
+
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.getcwd())))
 
 from alayatodo import app
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tmp/alayatodo.db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tmp/alayatodo.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///D:/PycharmProjects/backend-python-test/alayatodo/tmp/alayatodo.db'
 db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
