@@ -3,8 +3,8 @@
 {% block content %}
 <div class="col-md-4 col-md-offset-4">
     <h1>Todo List:</h1>
-    <table class="table table-striped">
-        <th>#</th><th>User</th><th>Description</th><th></th>
+    <table class="table table-striped" style="text-align:center;">
+        <th>#</th><th>User</th><th>Description</th><th>Complete</th><th>Remove</th>
         {% for todo in todos %}
             <tr>
                 <td>{{ todo.id }}</td>
@@ -43,7 +43,7 @@
                     <!-- TASK-1 : Field 'description' made mandatory on HTML Front End -->
                     <input type="textbox" name="description" class="small-6 small-center" placeholder="Description..." required>
                 </td>
-
+                <td></td>
                 <td>
                     <button type="submit" class="btn btn-sm btn-primary">Add</button>
                 </td>

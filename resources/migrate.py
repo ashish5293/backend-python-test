@@ -13,8 +13,7 @@ sys.path.append(os.path.abspath(os.path.join(os.getcwd())))
 
 from alayatodo import app
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tmp/alayatodo.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///D:/PycharmProjects/backend-python-test/alayatodo/tmp/alayatodo.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tmp/alayatodo.db'
 db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
