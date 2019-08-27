@@ -56,5 +56,23 @@
     {% if descBlankMsg %}
     <p style = "color:red;">Description can not be left blank*</p>
     {% endif %}
+
+    <!-- TASK-4 : Appropriate confirmation messages added as per the operation performed by the user
+        confirmMsg is
+            0 when a to-do is marked incomplete
+            1 when a to-do is marked COMPLETE
+            2 when a to-do is deleted
+            3 when a to-do is added
+     -->
+    {% if confirmMsg == '0' %}
+    <p style = "font-weight:bold;">A ToDo item marked <span style = "color:#0000FF"> COMPLETED </span> successfully.</p>
+    {% elif confirmMsg == '1' %}
+    <p style = "font-weight:bold;">A ToDo item marked <span style = "color:#FF00FF">INCOMPLETE </span> successfully.</p>
+    {% elif confirmMsg == '2' %}
+    <p style = "font-weight:bold;">A ToDo item <span style = "color:#FF0000"> DELETED </span> from the list successfully.</p>
+    {% elif confirmMsg == '3' %}
+    <p style = "font-weight:bold;">A new ToDo item <span style = "color:#0000FF"> ADDED </span> to the list successfully.</p>
+    {% endif %}
+
 </div>
 {% endblock %}

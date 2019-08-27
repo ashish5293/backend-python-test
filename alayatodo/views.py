@@ -57,11 +57,28 @@ def todos():
         return redirect('/login')
     cur = g.db.execute("SELECT * FROM todos")
     todos = cur.fetchall()
-
     # TASK-1 : render_template function provided an additional parameter for a
     # variable "descBlankMsg" added in todos.html
     # "descBlankMsg" is False when blank description message needs to be hidden on todos.html
     return render_template('todos.html', todos=todos, descBlankMsg=False)
+
+
+# TASK-4 : a new app route added which handles the confirmation messages whenever a to-do item is
+# added, deleted, marked complete or marked incomplete
+
+
+@app.route('/todos/<confirmation>/c', methods=['GET'])
+def todos_confirm(confirmation):
+    if not session.get('logged_in'):
+        return redirect('/login')
+    cur = g.db.execute("SELECT * FROM todos")
+    todos = cur.fetchall()
+    # TASK-4 : confirmMsg is
+    # 0 when a to-do is marked incomplete
+    # 1 when a to-do is marked COMPLETE
+    # 2 when a to-do is deleted
+    # 3 when a to-do is added
+    return render_template('todos.html', todos=todos, confirmMsg=confirmation)
 
 
 @app.route('/todo', methods=['POST'])
@@ -83,7 +100,8 @@ def todos_POST():
         return render_template('todos.html', todos=todos, descBlankMsg=True)
 
     g.db.commit()
-    return redirect('/todo')
+    # TASK-4 : modification done to redirect function parameter
+    return redirect('/todos/3/c')
 
 
 @app.route('/todo/<id>', methods=['POST'])
@@ -92,8 +110,8 @@ def todo_delete(id):
         return redirect('/login')
     g.db.execute("DELETE FROM todos WHERE id ='%s'" % id)
     g.db.commit()
-    print "cross pressed %s" %id
-    return redirect('/todo')
+    # TASK-4 : modification done to redirect function parameter
+    return redirect('/todos/2/c')
 
 
 # TASK-2 : function todo_mark_complete runs when user marks a to-do as COMPLETE
@@ -103,9 +121,8 @@ def todo_mark_complete(id):
         return redirect('/login')
     g.db.execute("UPDATE todos SET complete = 1 WHERE id ='%s'" % id)
     g.db.commit()
-    print "COMPLETE pressed"
-    return redirect('/todo')
-    # return render_template('todos.html', todos=todos, descBlankMsg=False)
+    # TASK-4 : modification done to redirect function parameter
+    return redirect('/todos/0/c')
 
 
 # TASK-2 : function todo_mark_complete runs when user marks a to-do as INCOMPLETE
@@ -115,8 +132,7 @@ def todo_mark_incomplete(id):
         return redirect('/login')
     g.db.execute("UPDATE todos SET complete = 0 WHERE id ='%s'" % id)
     g.db.commit()
-    print "incomplete unpressed"
-    return redirect('/todo')
-    # return render_template('todos.html', todos=todos, descBlankMsg=False)
+    # TASK-4 : modification done to redirect function parameter
+    return redirect('/todos/1/c')
 
 
