@@ -1,8 +1,10 @@
 from flask import Flask, g
 import sqlite3
+import tempfile
+import os
 
 # configuration
-DATABASE = '/tmp/alayatodo.db'
+DATABASE = os.path.abspath(os.path.join(tempfile.gettempdir(),'alayatodo.db'))
 DEBUG = True
 SECRET_KEY = 'development key'
 USERNAME = 'admin'

@@ -9,11 +9,12 @@ from flask_migrate import Migrate, MigrateCommand
 from flask_sqlalchemy import SQLAlchemy
 
 import sys, os
+
 sys.path.append(os.path.abspath(os.path.join(os.getcwd())))
 
-from alayatodo import app
+from alayatodo import app, DATABASE
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tmp/alayatodo.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + DATABASE
 db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)

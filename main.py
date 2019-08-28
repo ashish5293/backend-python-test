@@ -10,7 +10,6 @@ import os
 
 from alayatodo import app
 
-
 def _run_sql(filename):
     try:
         subprocess.check_output(

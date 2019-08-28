@@ -1,9 +1,9 @@
 # TASK-6 : SQLAlchemy ORM models added
 
 from flask_sqlalchemy import SQLAlchemy
-from alayatodo import app
+from alayatodo import app, DATABASE
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tmp/alayatodo.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + DATABASE
 db = SQLAlchemy(app)
 
 

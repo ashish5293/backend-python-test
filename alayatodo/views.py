@@ -1,5 +1,5 @@
 import json
-from alayatodo import app
+from alayatodo import app, DATABASE
 from flask import (
     g,
     redirect,
@@ -8,9 +8,8 @@ from flask import (
     session
     )
 from flask_sqlalchemy import SQLAlchemy
-from flask import jsonify
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tmp/alayatodo.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + DATABASE
 db = SQLAlchemy(app)
 
 from models_orm import Users, Todos
@@ -78,9 +77,7 @@ def todos():
     # TASK-6 : SQL code replaced with SQLAlchemy code
     # todos = Todos.query.all()
 
-    # TASK-5 : Pagination added
-    page = request.args.get('page', 1, type=int)
-    todos = Todos.query.paginate(page=page, per_page=5)
+    todos = get_todo_pagination(per_page_todo=5, page_num=1)
 
     # TASK-1 : render_template function provided an additional parameter for a
     # variable "descBlankMsg" added in todos.html
@@ -92,19 +89,17 @@ def todos():
 # added, deleted, marked complete or marked incomplete
 
 
-@app.route('/todos/<confirmation>/c', methods=['GET'])
-def todos_confirm(confirmation):
+@app.route('/todos/<confirmation>/<curr_page>/c', methods=['GET'])
+def todos_confirm(confirmation, curr_page):
     if not session.get('logged_in'):
         return redirect('/login')
+
     # cur = g.db.execute("SELECT * FROM todos")
     # todos = cur.fetchall()
 
-    # TASK-6 : SQL code replaced with SQLAlchemy code
+    ''' TASK-6 : SQL code replaced with SQLAlchemy code'''
     # todos = Todos.query.all()
-
-    # TASK-5 : Pagination added
-    page = request.args.get('page', 1, type=int)
-    todos = Todos.query.paginate(page=page, per_page=5)
+    todos = get_todo_pagination(per_page_todo=5, page_num=int(curr_page))
 
     # TASK-4 : confirmMsg is
     # 0 when a to-do is marked incomplete
@@ -139,9 +134,7 @@ def todos_POST():
         # TASK-6 : SQL code replaced with SQLAlchemy code
         # todos = Todos.query.all()
 
-        # TASK-5 : Pagination added
-        page = request.args.get('page', 1, type=int)
-        todos = Todos.query.paginate(page=page, per_page=5)
+        todos = get_todo_pagination(per_page_todo=5, page_num=1)
 
         # "descBlankMsg" is True when blank description message needs to be displayed on todos.html
         return render_template('todos.html', todos=todos, descBlankMsg=True)
@@ -150,11 +143,11 @@ def todos_POST():
     db.session.commit()
 
     # TASK-4 : modification done to redirect function parameter
-    return redirect('/todos/3/c')
+    return redirect('/todos/3/1/c')
 
 
-@app.route('/todo/<id>', methods=['POST'])
-def todo_delete(id):
+@app.route('/todo/<id>/<curr_page>/d', methods=['POST'])
+def todo_delete(id, curr_page):
     if not session.get('logged_in'):
         return redirect('/login')
     # g.db.execute("DELETE FROM todos WHERE id ='%s'" % id)
@@ -166,12 +159,12 @@ def todo_delete(id):
     db.session.commit()
 
     # TASK-4 : modification done to redirect function parameter
-    return redirect('/todos/2/c')
+    return redirect('/todos/2/'+curr_page+'/c')
 
 
 # TASK-2 : function todo_mark_complete runs when user marks a to-do as COMPLETE
-@app.route('/todos/<id>', methods=['GET'])
-def todo_mark_complete(id):
+@app.route('/todos/<id>/<curr_page>/com', methods=['GET'])
+def todo_mark_complete(id, curr_page):
     if not session.get('logged_in'):
         return redirect('/login')
     # g.db.execute("UPDATE todos SET complete = 1 WHERE id ='%s'" % id)
@@ -183,12 +176,12 @@ def todo_mark_complete(id):
     db.session.commit()
 
     # TASK-4 : modification done to redirect function parameter
-    return redirect('/todos/0/c')
+    return redirect('/todos/0/'+curr_page+'/c')
 
 
 # TASK-2 : function todo_mark_incomplete runs when user marks a to-do as INCOMPLETE
-@app.route('/todos/<id>', methods=['POST'])
-def todo_mark_incomplete(id):
+@app.route('/todos/<id>/<curr_page>/incom', methods=['POST'])
+def todo_mark_incomplete(id,curr_page):
     if not session.get('logged_in'):
         return redirect('/login')
     # g.db.execute("UPDATE todos SET complete = 0 WHERE id ='%s'" % id)
@@ -200,36 +193,46 @@ def todo_mark_incomplete(id):
     db.session.commit()
 
     # TASK-4 : modification done to redirect function parameter
-    return redirect('/todos/1/c')
+    return redirect('/todos/1/'+curr_page+'/c')
 
 
+# TASK-5 : This function executes whenever a user clicks a page number
 @app.route('/todo/page/', methods=['POST'])
 def todos_page_POST():
     if not session.get('logged_in'):
         return redirect('/login')
-    # TASK-5 : Pagination added
-    page = request.args.get('page', 1, type=int)
-    todos = Todos.query.paginate(page=page, per_page=5)
+
+    todos = get_todo_pagination(per_page_todo=5, page_num=1)
     return render_template('todos.html', todos=todos)
 
 
 # TASK-3 : this function executes whenever json format of a to-do needs to be viewed
-@app.route('/todo/<id>/json/', methods=['POST'])
-def todo_json(id):
+@app.route('/todo/<id>/<curr_page>/', methods=['POST'])
+def todo_json(id, curr_page):
     if not session.get('logged_in'):
         return redirect('/login')
 
     todo = Todos.query.filter_by(id=id).first()
-    page = request.args.get('page', 1, type=int)
-    todos = Todos.query.paginate(page=page, per_page=5)
+    todos = get_todo_pagination(per_page_todo=5, page_num=int(curr_page))
 
-    return render_template('todos.html', todos=todos, json_dump=json.dumps([todo.serialize])[1:-1],json_todo_id=int(id))
+    return render_template('todos.html', todos=todos, json_dump=json.dumps([todo.serialize])[1:-1], json_todo_id=int(id))
+
 
 # TASK-3 : this function executes whenever json format of a to-do needs to be hidden
-@app.route('/todos/hide', methods=['POST'])
-def todo_hide():
+@app.route('/todos/<curr_page>/hide', methods=['POST'])
+def todo_hide(curr_page):
     if not session.get('logged_in'):
         return redirect('/login')
-    page = request.args.get('page', 1, type=int)
-    todos = Todos.query.paginate(page=page, per_page=5)
+
+    todos = get_todo_pagination(per_page_todo=5, page_num=int(curr_page))
     return render_template('todos.html', todos=todos)
+
+
+# TASK-5 : Pagination added
+def get_todo_pagination(per_page_todo, page_num):
+    user_id = session['user']['id']
+    page = request.args.get('page', page_num, type=int)
+    todos = Todos.query.filter_by(user_id=user_id).paginate(page=page, per_page=per_page_todo)
+    return todos
+
+
