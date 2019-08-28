@@ -22,5 +22,16 @@ class Todos(db.Model):
     complete = db.Column(db.Integer, default=0)
     description = db.Column(db.VARCHAR(255))
 
+    # TASK-3 : property added for the model object data to be serialized
+    # this serialized data can be used to obtain json format
+    @property
+    def serialize(self):
+       return {
+           'id': self.id,
+           'user_id': self.user_id,
+           'description':self.description,
+           'complete': 'yes' if self.complete == 1 else 'no'
+       }
+
 
 

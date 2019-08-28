@@ -4,7 +4,7 @@
 <div class="col-md-4 col-md-offset-4">
     <h1>Todo List:</h1>
     <table class="table table-striped" style="text-align:center;">
-        <th>#</th><th>User</th><th>Description</th><th>Complete</th><th>Remove</th>
+        <th>#</th><th>User</th><th>Description</th><th>Complete</th><th>Remove</th><th style="padding-right: 90px;"></th>
 
         <!-- TASK-5 -->
         {% for todo in todos.items %}
@@ -37,16 +37,38 @@
                         <button type="submit" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove glyphicon-white"></span></button>
                     </form>
                 </td>
+
+                <!-- TASK-3 : Button added to view or hide to-do in JSON Format-->
+                {% if json_todo_id == todo.id %}
+                <td>
+                    <form method="post" action="{{ url_for('todo_hide') }}">
+                         <button type="submit" class="btn btn-sm btn-primary">Hide JSON format</button>
+                    </form>
+                </td>
+                {% else %}
+                <td>
+                    <form method="post" action="{{ url_for('todo_json', id=todo.id) }}">
+                         <button type="submit" class="btn btn-sm btn-primary">View in JSON format</button>
+                    </form>
+                </td>
+
+                {% endif %}
+                <!-- TASK-3 : Selected to-do displayed in JSON format -->
+                <tr>
+                 {% if json_todo_id == todo.id %}
+                    <td colspan="6">{{ json_dump }}</td>
+                 {% endif %}
+                </tr>
             </tr>
+
         {% endfor %}
 
         <tr>
             <form method="post" action="{{ url_for('todos_POST') }}">
-                <td colspan="3">
+                <td colspan="5" style="text-align:left">
                     <!-- TASK-1 : Field 'description' made mandatory on HTML Front End -->
-                    <input type="textbox" name="description" class="small-6 small-center" placeholder="Description..." required>
+                    <input type="textbox" size="40" name="description" class="small-6 small-center" placeholder="Description..." required>
                 </td>
-                <td></td>
                 <td>
                     <button type="submit" class="btn btn-sm btn-primary">Add</button>
                 </td>
@@ -59,11 +81,17 @@
         <tr>
             <td class="text-info" style="padding-right: 25px;">Pages</td>
             {% for page_num in todos.iter_pages() %}
-                <td>
+                <td style="padding-right: 5px;">
                     {% if page_num %}
-                        <form method="post" action="{{ url_for('todos_page_POST',page=page_num) }}">
-                            <button type="submit" class="btn btn-sm btn-info">{{ page_num }}</button>
-                        </form>
+                        {% if todos.page == page_num %}
+                            <form method="post" action="{{ url_for('todos_page_POST',page=page_num) }}">
+                                <button type="submit" class="btn btn-sm btn-info">{{ page_num }}</button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{{ url_for('todos_page_POST',page=page_num) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-info">{{ page_num }}</button>
+                            </form>
+                        {% endif %}
                     {% else %}
                     ...
                     {% endif %}

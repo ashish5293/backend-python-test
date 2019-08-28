@@ -1,3 +1,4 @@
+import json
 from alayatodo import app
 from flask import (
     g,
@@ -7,6 +8,7 @@ from flask import (
     session
     )
 from flask_sqlalchemy import SQLAlchemy
+from flask import jsonify
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tmp/alayatodo.db'
 db = SQLAlchemy(app)
@@ -78,7 +80,7 @@ def todos():
 
     # TASK-5 : Pagination added
     page = request.args.get('page', 1, type=int)
-    todos = Todos.query.paginate(page=page, per_page=7)
+    todos = Todos.query.paginate(page=page, per_page=5)
 
     # TASK-1 : render_template function provided an additional parameter for a
     # variable "descBlankMsg" added in todos.html
@@ -102,7 +104,7 @@ def todos_confirm(confirmation):
 
     # TASK-5 : Pagination added
     page = request.args.get('page', 1, type=int)
-    todos = Todos.query.paginate(page=page, per_page=7)
+    todos = Todos.query.paginate(page=page, per_page=5)
 
     # TASK-4 : confirmMsg is
     # 0 when a to-do is marked incomplete
@@ -139,7 +141,7 @@ def todos_POST():
 
         # TASK-5 : Pagination added
         page = request.args.get('page', 1, type=int)
-        todos = Todos.query.paginate(page=page, per_page=7)
+        todos = Todos.query.paginate(page=page, per_page=5)
 
         # "descBlankMsg" is True when blank description message needs to be displayed on todos.html
         return render_template('todos.html', todos=todos, descBlankMsg=True)
@@ -207,7 +209,27 @@ def todos_page_POST():
         return redirect('/login')
     # TASK-5 : Pagination added
     page = request.args.get('page', 1, type=int)
-    todos = Todos.query.paginate(page=page, per_page=7)
+    todos = Todos.query.paginate(page=page, per_page=5)
+    return render_template('todos.html', todos=todos)
 
-    # "descBlankMsg" is True when blank description message needs to be displayed on todos.html
+
+# TASK-3 : this function executes whenever json format of a to-do needs to be viewed
+@app.route('/todo/<id>/json/', methods=['POST'])
+def todo_json(id):
+    if not session.get('logged_in'):
+        return redirect('/login')
+
+    todo = Todos.query.filter_by(id=id).first()
+    page = request.args.get('page', 1, type=int)
+    todos = Todos.query.paginate(page=page, per_page=5)
+
+    return render_template('todos.html', todos=todos, json_dump=json.dumps([todo.serialize])[1:-1],json_todo_id=int(id))
+
+# TASK-3 : this function executes whenever json format of a to-do needs to be hidden
+@app.route('/todos/hide', methods=['POST'])
+def todo_hide():
+    if not session.get('logged_in'):
+        return redirect('/login')
+    page = request.args.get('page', 1, type=int)
+    todos = Todos.query.paginate(page=page, per_page=5)
     return render_template('todos.html', todos=todos)
